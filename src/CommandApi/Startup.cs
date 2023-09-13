@@ -11,6 +11,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using AutoMapper;
+using Newtonsoft.Json.Serialization;
 
 namespace CommandApi
 {
@@ -31,8 +33,14 @@ namespace CommandApi
             builder.Password = Configuration["Password"];
 
             services.AddDbContext<CommandContext>(opt => opt.UseNpgsql(builder.ConnectionString));
-            //SECTION 1. Add code below
-            services.AddControllers();
+
+            services.AddControllers().AddNewtonsoftJson(s =>
+            {
+                s.SerializerSettings.ContractResolver = new
+                CamelCasePropertyNamesContractResolver();
+            });
+
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddScoped<ICommandAPIRepo, SqlCommandAPIRepo>();
         }
